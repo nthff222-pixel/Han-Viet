@@ -1,0 +1,17 @@
+{
+  "name": "viet-han-seller-bot",
+  "version": "1.0.0",
+  "description": "Trợ lý hội thoại Việt–Hàn cho tiểu thương mỹ phẩm",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
