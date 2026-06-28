@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#080E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VH Seller">
+<link rel="manifest" href="/manifest.json">
+<title>VH Seller · Trợ lý Việt–Hàn</title>
+<style>
+/* ========== TOKENS ========== */
+:root {
+  --bg:       #080E1A;
+  --s1:       #0F1825;
+  --s2:       #162035;
+  --s3:       #1E2D47;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --pink:     #FF6B9D;
+  --teal:     #4ECDC4;
+  --gold:     #FFD166;
+  --blue:     #5B8DEF;
+  --text:     #EEF2F8;
+  --muted:    #6B82A0;
+  --muted2:   #4A5E7A;
+  --radius:   18px;
+  --rsm:      10px;
+  --font:     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono:     "SF Mono", "Fira Code", ui-monospace, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; background: var(--bg);
+  color: var(--text); font-family: var(--font);
+  font-size: 15px; line-height: 1.5; overflow: hidden;
+}
+
+/* ========== LAYOUT ========== */
+.app {
+  display: flex; flex-direction: column;
+  height: 100dvh; max-width: 480px; margin: 0 auto;
+}
+
+/* ========== HEADER ========== */
+.header {
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0; position: relative; z-index: 20;
+  backdrop-filter: blur(20px);
+}
+
+.logo {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--pink) 0%, #FF9F43 100%);
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255,107,157,0.35);
+}
+
+.header-info { flex: 1; min-width: 0; }
+.app-name { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.app-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.ai-badge {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(78,205,196,0.1);
+  border: 1px solid rgba(78,205,196,0.2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px; font-weight: 600; color: var(--teal);
+  letter-spacing: 0.3px;
+}
+.ai-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ========== TABS ========== */
+.tabs {
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-shrink: 0; padding: 0 4px;
+}
+.tab {
+  flex: 1; padding: 10px 6px 9px;
+  text-align: center; font-size: 12px; font-weight: 600;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .2s; user-select: none; letter-spacing: 0.2px;
+}
+.tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* ========== MAIN GRID ========== */
+.main-grid { display: flex; flex: 1; flex-direction: column; overflow: hidden; }
+
+/* ========== PANELS ========== */
+.panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.panel.active { display: flex; }
+
+/* ========== CHAT ========== */
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+.chat-messages::-webkit-scrollbar { width: 3px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+
+/* Welcome screen */
+.welcome {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px; text-align: center; padding: 32px 24px;
+  animation: fadeIn .4s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.welcome-emoji { font-size: 52px; filter: drop-shadow(0 4px 16px rgba(255,107,157,0.4)); }
+.welcome h2 { font-size: 19px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+.welcome p { font-size: 13px; color: var(--muted); max-width: 260px; line-height: 1.65; }
+
+.welcome-features {
+  display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; justify-content: center;
+}
+.feat-tag {
+  font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 20px;
+  background: var(--s2); border: 1px solid var(--border2);
+  color: var(--muted);
+}
+
+/* Message groups */
+.msg-group { display: flex; flex-direction: column; gap: 3px; animation: slideUp .25s ease; }
+@keyframes slideUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+.msg-group.customer { align-items: flex-start; }
+.msg-group.bot { align-items: flex-end; }
+
+.msg-label { font-size: 10px; color: var(--muted2); padding: 0 6px; font-weight: 500; letter-spacing: 0.3px; }
+
+/* Customer bubble */
+.bubble-customer {
+  max-width: 84%;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius); border-bottom-left-radius: 5px;
+  padding: 12px 15px;
+  font-size: 16px; color: var(--gold);
+  line-height: 1.55; word-break: break-word;
+}
+
+/* Bot bubble — 3-layer card */
+.bubble-bot {
+  max-width: 88%;
+  background: linear-gradient(145deg, #0D2040, #0A1930);
+  border: 1px solid rgba(91,141,239,0.2);
+  border-radius: var(--radius); border-bottom-right-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.layer { padding: 11px 15px; }
+.layer + .layer { border-top: 1px solid rgba(255,255,255,0.05); }
+
+/* Korean layer */
+.layer-ko {
+  background: rgba(255,209,102,0.04);
+}
+.layer-ko-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  color: rgba(255,209,102,0.5); text-transform: uppercase; margin-bottom: 5px;
+}
+.layer-ko-text { font-size: 15px; color: var(--gold); line-height: 1.6; }
+
+/* Romanization layer */
+.layer-rom {
+  background: rgba(91,141,239,0.04);
+}
+.layer-rom-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  color: rgba(91,141,239,0.5); text-transform: uppercase; margin-bottom: 5px;
+}
+.layer-rom-text {
+  font-size: 12px; color: var(--blue); line-height: 1.6;
+  font-family: var(--mono); font-style: italic; letter-spacing: 0.2px;
+}
+
+/* Vietnamese layer */
+.layer-vi {}
+.layer-vi-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  color: rgba(78,205,196,0.5); text-transform: uppercase; margin-bottom: 5px;
+}
+.layer-vi-text { font-size: 13px; color: #A8C5D0; line-height: 1.6; }
+
+/* Source tags */
+.src-row {
+  padding: 8px 15px 10px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+}
+.src-label { font-size: 9px; color: var(--muted2); font-weight: 600; letter-spacing: 0.5px; margin-right: 2px; }
+.src-tag {
+  font-family: var(--mono); font-size: 10px;
+  padding: 2px 7px; border-radius: 4px;
+  background: rgba(78,205,196,0.08);
+  border: 1px solid rgba(78,205,196,0.2);
+  color: var(--teal); cursor: pointer;
+  transition: background .15s;
+}
+.src-tag:hover { background: rgba(78,205,196,0.15); }
+.src-tag.ooc {
+  background: rgba(255,107,107,0.08);
+  border-color: rgba(255,107,107,0.2);
+  color: #FF7070; cursor: default;
+}
+
+/* Copy button */
+.copy-btn {
+  margin-left: auto; padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border2);
+  color: var(--muted); font-size: 10px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+.copy-btn.copied { color: var(--teal); border-color: rgba(78,205,196,0.3); }
+
+/* Typing indicator */
+.typing {
+  display: none; align-items: center; gap: 8px;
+  padding: 8px 16px; color: var(--muted); font-size: 12px;
+}
+.typing.show { display: flex; }
+.dots { display: flex; gap: 3px; }
+.dots span {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--teal);
+  animation: bounce 1.2s infinite;
+}
+.dots span:nth-child(2) { animation-delay: .2s; }
+.dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-5px);opacity:1} }
+
+/* Quick chips */
+.chips-row {
+  padding: 8px 16px 6px;
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+}
+.chips-row::-webkit-scrollbar { display: none; }
+.chip {
+  white-space: nowrap; padding: 6px 13px;
+  background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 20px; font-size: 12px; color: var(--text);
+  cursor: pointer; transition: border-color .15s, background .15s; user-select: none;
+}
+.chip:active, .chip:hover { background: var(--s3); border-color: rgba(255,255,255,0.2); }
+
+/* Input bar */
+.input-bar {
+  background: var(--s1); border-top: 1px solid var(--border);
+  padding: 10px 12px 14px; flex-shrink: 0;
+}
+.input-row { display: flex; gap: 8px; align-items: flex-end; }
+textarea {
+  flex: 1; background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 12px; color: var(--text); font-family: var(--font);
+  font-size: 15px; padding: 10px 14px;
+  resize: none; min-height: 44px; max-height: 120px; outline: none;
+  line-height: 1.5; transition: border-color .2s;
+}
+textarea:focus { border-color: rgba(78,205,196,0.4); }
+textarea::placeholder { color: var(--muted2); }
+
+.send-btn {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--pink), #FF9F43);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .15s, transform .1s;
+  box-shadow: 0 4px 12px rgba(255,107,157,0.3);
+}
+.send-btn:active { opacity:.85; transform:scale(.94); }
+.send-btn:disabled { opacity:.35; cursor:not-allowed; }
+.send-btn svg { width: 19px; height: 19px; fill: white; }
+
+.err { font-size: 12px; color: #FF7070; margin-top: 6px; padding: 0 2px; }
+
+/* ========== CORPUS PANEL ========== */
+.corpus-panel { background: var(--bg); }
+
+.corpus-header { padding: 12px 14px 8px; flex-shrink: 0; }
+.search-box {
+  width: 100%; background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 12px; color: var(--text); font-size: 14px;
+  padding: 10px 14px; outline: none; transition: border-color .2s;
+}
+.search-box:focus { border-color: rgba(78,205,196,0.4); }
+.search-box::placeholder { color: var(--muted2); }
+
+.cat-pills {
+  padding: 0 14px 8px; display: flex; gap: 5px;
+  overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+}
+.cat-pills::-webkit-scrollbar { display: none; }
+.cat-pill {
+  white-space: nowrap; padding: 5px 12px;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 12px; color: var(--muted);
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.cat-pill.active {
+  background: rgba(78,205,196,0.12);
+  border-color: rgba(78,205,196,0.35);
+  color: var(--teal); font-weight: 600;
+}
+
+.corpus-count {
+  font-size: 11px; color: var(--muted2); padding: 0 14px 6px;
+  letter-spacing: 0.2px; flex-shrink: 0;
+}
+
+.corpus-list {
+  flex: 1; overflow-y: auto; padding: 4px 10px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.corpus-list::-webkit-scrollbar { width: 3px; }
+.corpus-list::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+
+.corpus-item {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 13px;
+  cursor: pointer; transition: all .15s;
+}
+.corpus-item:hover { background: var(--s2); border-color: var(--border2); }
+.corpus-item.highlight {
+  background: rgba(78,205,196,0.08);
+  border-color: rgba(78,205,196,0.3);
+}
+
+.ci-ko { font-size: 14px; color: var(--gold); margin-bottom: 2px; line-height: 1.5; }
+.ci-rom { font-size: 11px; color: var(--blue); font-family: var(--mono); font-style: italic; margin-bottom: 3px; opacity: .8; }
+.ci-vi { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.ci-tag { font-size: 10px; color: var(--muted2); margin-top: 5px; font-family: var(--mono); }
+
+/* ========== DESKTOP ========== */
+@media (min-width: 900px) {
+  body { overflow: auto; }
+  .app { max-width: 1000px; height: 100vh; }
+  .tabs { display: none; }
+  .main-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 340px;
+    flex: 1; overflow: hidden;
+  }
+  .panel { display: flex !important; }
+  .panel.chat-panel { border-right: 1px solid var(--border); order: 1; }
+  .panel.corpus-panel { order: 2; }
+}
+@media (max-width: 899px) {
+  .main-grid { display: flex; flex: 1; flex-direction: column; overflow: hidden; }
+  .panel.chat-panel { flex: 1; }
+  .panel.corpus-panel { flex: 1; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">🌸</div>
+    <div class="header-info">
+      <div class="app-name">VH Seller · 판매자 도우미</div>
+      <div class="app-sub">Trợ lý hội thoại Việt–Hàn · Mỹ phẩm</div>
+    </div>
+    <div class="ai-badge">AI Live</div>
+  </div>
+
+  <!-- TABS (mobile) -->
+  <div class="tabs">
+    <div class="tab active" id="tab-chat" onclick="switchTab('chat')">💬 Hội thoại</div>
+    <div class="tab" id="tab-corpus" onclick="switchTab('corpus')">📚 Kho câu</div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- CHAT PANEL -->
+    <div class="panel chat-panel active" id="panel-chat">
+      <div class="chat-messages" id="chatMessages">
+        <div class="welcome" id="welcomeState">
+          <div class="welcome-emoji">🇰🇷</div>
+          <h2>Sẵn sàng trả lời khách Hàn</h2>
+          <p>Dán tin nhắn tiếng Hàn của khách vào đây — AI sẽ trả lời ngay với đầy đủ tiếng Hàn, phiên âm và tiếng Việt.</p>
+          <div class="welcome-features">
+            <span class="feat-tag">🇰🇷 Tiếng Hàn</span>
+            <span class="feat-tag">🔤 Phiên âm</span>
+            <span class="feat-tag">🇻🇳 Tiếng Việt</span>
+            <span class="feat-tag">📚 RAG Corpus</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="typing" id="typingIndicator">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span>AI đang soạn câu trả lời...</span>
+      </div>
+
+      <div class="chips-row" id="quickChips"></div>
+
+      <div class="input-bar">
+        <div class="input-row">
+          <textarea id="userInput" placeholder="입력하세요... (dán câu hỏi tiếng Hàn của khách)" rows="1"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div class="err" id="errMsg"></div>
+      </div>
+    </div>
+
+    <!-- CORPUS PANEL -->
+    <div class="panel corpus-panel" id="panel-corpus">
+      <div class="corpus-header">
+        <input class="search-box" id="searchBox" placeholder="🔍  Tìm tiếng Hàn, phiên âm, tiếng Việt...">
+      </div>
+      <div class="cat-pills" id="catPills"></div>
+      <div class="corpus-count" id="corpusCount">Đang tải...</div>
+      <div class="corpus-list" id="corpusList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let CORPUS = [];
+let activeCat = 'Tất cả';
+let searchQ = '';
+let sending = false;
+
+const QUICK = [
+  '가격이 얼마예요?',
+  '한국까지 얼마나 걸려요?',
+  '민감성 피부도 괜찮아요?',
+  '교환/환불 가능한가요?',
+  '유통기한이 어떻게 되나요?',
+  '샘플도 있나요?',
+  '재고 있나요?',
+  '어떻게 사용해요?',
+];
+
+function esc(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/corpus');
+    CORPUS = await res.json();
+  } catch { CORPUS = []; }
+  renderChips();
+  renderCatPills();
+  renderCorpusList();
+}
+
+function switchTab(tab) {
+  ['chat','corpus'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+function renderChips() {
+  document.getElementById('quickChips').innerHTML = QUICK.map(q =>
+    `<span class="chip" onclick="setInput(${JSON.stringify(q)})">${q}</span>`
+  ).join('');
+}
+
+function setInput(text) {
+  const ta = document.getElementById('userInput');
+  ta.value = text; ta.focus();
+  autoResize(ta);
+  if (window.innerWidth < 900) switchTab('chat');
+}
+
+function getCategories() {
+  return ['Tất cả', ...Array.from(new Set(CORPUS.map(c => c.cat)))];
+}
+
+function renderCatPills() {
+  document.getElementById('catPills').innerHTML = getCategories().map(cat =>
+    `<span class="cat-pill ${cat===activeCat?'active':''}" onclick="setCat(${JSON.stringify(cat)})">${cat}</span>`
+  ).join('');
+}
+
+function setCat(cat) {
+  activeCat = cat;
+  renderCatPills();
+  renderCorpusList();
+}
+
+function renderCorpusList() {
+  const q = searchQ.trim().toLowerCase();
+  const filtered = CORPUS.filter(c => {
+    const matchCat = activeCat === 'Tất cả' || c.cat === activeCat;
+    const matchQ = !q || c.ko.toLowerCase().includes(q)
+      || (c.rom||'').toLowerCase().includes(q)
+      || c.vi.toLowerCase().includes(q)
+      || c.cat.toLowerCase().includes(q)
+      || c.id.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  document.getElementById('corpusCount').textContent = `${filtered.length} / ${CORPUS.length} mẫu câu`;
+  document.getElementById('corpusList').innerHTML = filtered.map(c => `
+    <div class="corpus-item" id="ci-${c.id}" onclick="setInput(${JSON.stringify(c.ko)})">
+      <div class="ci-ko">${esc(c.ko)}</div>
+      ${c.rom ? `<div class="ci-rom">${esc(c.rom)}</div>` : ''}
+      <div class="ci-vi">${esc(c.vi)}</div>
+      <div class="ci-tag">#${c.id} · ${c.cat}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('searchBox').addEventListener('input', e => {
+  searchQ = e.target.value;
+  renderCorpusList();
+});
+
+function highlightCorpus(id) {
+  document.querySelectorAll('.corpus-item').forEach(el => el.classList.remove('highlight'));
+  const el = document.getElementById('ci-' + id);
+  if (el) {
+    el.classList.add('highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (window.innerWidth < 900) switchTab('corpus');
+  }
+}
+
+function copyToClipboard(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Đã copy';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function addMsg(role, html) {
+  const welcome = document.getElementById('welcomeState');
+  if (welcome) welcome.remove();
+  const area = document.getElementById('chatMessages');
+  const el = document.createElement('div');
+  el.className = 'msg-group ' + role;
+  el.innerHTML = html;
+  area.appendChild(el);
+  area.scrollTop = area.scrollHeight;
+  return el;
+}
+
+async function handleSend() {
+  if (sending) return;
+  const ta = document.getElementById('userInput');
+  const text = ta.value.trim();
+  if (!text) return;
+
+  sending = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('errMsg').textContent = '';
+  ta.value = ''; ta.style.height = 'auto';
+
+  addMsg('customer', `
+    <div class="msg-label">고객 · KHÁCH HÀN</div>
+    <div class="bubble-customer">${esc(text)}</div>
+  `);
+
+  if (window.innerWidth < 900) switchTab('chat');
+
+  const typing = document.getElementById('typingIndicator');
+  typing.classList.add('show');
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const isOOC = data.out_of_corpus === true;
+    const usedIds = Array.isArray(data.used_ids) ? data.used_ids : [];
+    const koText = data.reply_korean || '';
+    const romText = data.reply_romanization || '';
+    const viText = data.reply_vietnamese || '';
+
+    // Build source tags row
+    let srcHtml = '';
+    if (isOOC || usedIds.length === 0) {
+      srcHtml = `<span class="src-tag ooc">⚠ Ngoài kho — seller kiểm tra lại</span>`;
+    } else {
+      srcHtml = `<span class="src-label">NGUỒN</span>` + usedIds.map(id =>
+        `<span class="src-tag" onclick="highlightCorpus('${id}')">#${id}</span>`
+      ).join('');
+    }
+
+    const msgEl = addMsg('bot', `
+      <div class="msg-label">🤖 AI SELLER ASSISTANT</div>
+      <div class="bubble-bot">
+        <div class="layer layer-ko">
+          <div class="layer-ko-label">🇰🇷 Tiếng Hàn — gửi cho khách</div>
+          <div class="layer-ko-text">${esc(koText)}</div>
+        </div>
+        ${romText ? `<div class="layer layer-rom">
+          <div class="layer-rom-label">🔤 Phiên âm (đọc theo)</div>
+          <div class="layer-rom-text">${esc(romText)}</div>
+        </div>` : ''}
+        <div class="layer layer-vi">
+          <div class="layer-vi-label">🇻🇳 Nghĩa tiếng Việt</div>
+          <div class="layer-vi-text">${esc(viText)}</div>
+        </div>
+        <div class="src-row">
+          ${srcHtml}
+          <button class="copy-btn" onclick="copyToClipboard(${JSON.stringify(koText)}, this)">Copy</button>
+        </div>
+      </div>
+    `);
+  } catch (err) {
+    document.getElementById('errMsg').textContent = '❌ ' + err.message + ' — thử lại nhé.';
+  } finally {
+    typing.classList.remove('show');
+    sending = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+document.getElementById('userInput').addEventListener('input', function() { autoResize(this); });
+document.getElementById('userInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+
+init();
+</script>
+</body>
+</html>
